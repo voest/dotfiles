@@ -1,0 +1,6 @@
+--concurrent-fragments 10
+--embed-metadata
+--embed-subs
+--embed-thumbnail
+--remux-video mkv
+--convert-subs srt

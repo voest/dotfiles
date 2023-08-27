@@ -1,0 +1,373 @@
+# sway
+
+### variables ###
+
+# modifier super key
+set $mod Mod4
+
+# direction keys
+set $left h
+set $down j
+set $up k
+set $right l
+
+# applications
+set $bar waybar
+set $menu wofi
+set $term qterminal
+#set $term alacritty
+set $term-alt QT_QPA_PLATFORM=xcb konsole
+set $clip $HOME/go/bin/clipman pick -t wofi -T'--prompt=clipboard -i'
+set $clip_clear $HOME/go/bin/clipman clear -a
+set $emoji $HOME/bin/wofi-emoji
+
+# appearance
+set $font pango:FontAwesome 6 Free Solid 10, pango:Roboto 10
+set $wallpaper ~/Pictures/current_wallpaper
+set $border pixel 2
+set $border_floating normal pixel 2
+set $gaps_inner 14
+set $gaps_outer 6
+set $gnome-schema org.gnome.desktop.interface
+exec_always {
+  gsettings set $gnome-schema gtk-theme 'Mc-OS-CTLina-Gnome-Dark-1.3.2'
+  gsettings set $gnome-schema icon-theme 'Papirus-Dark'
+  gsettings set $gnome-schema cursor-theme 'Vanilla-DMZ-AA'
+}
+
+# workspaces
+set $workspace1 1: 
+set $workspace2 2: 
+set $workspace3 3: 
+set $workspace4 4: 
+set $workspace5 5: 
+set $workspace6 6: 
+set $workspace7 7
+set $workspace8 8: 
+set $workspace9 9: 
+set $workspace10 10: 
+
+
+### sway settings ###
+
+# input configuration
+input * {
+  xkb_layout de
+  xkb_variant nodeadkeys
+  xkb_options caps:none,kpdl:dot
+  xkb_numlock enable
+}
+
+input type:touchpad {
+  tap enabled
+  natural_scroll enabled
+}
+
+# display configuration
+exec sway create_output
+set $laptop eDP-1
+set $display1_left 'Samsung Electric Company SyncMaster 0x00000000'
+set $display1_left_res 1920x1080
+set $display1_right 'Dell Inc. DELL U2412M YPPY09480R5B'
+set $display1_right_res 1920x1200
+output $display1_left pos 0 0 res $display1_left_res
+output $display1_right pos 1920 0 res $display1_right_res
+output $laptop pos 3840 1000 res 1366x768
+#output HEADLESS-1 pos 2400 1200 mode 1024x720
+
+# output configuration
+output * bg $wallpaper fill
+
+# lid configuration
+bindswitch --reload lid:on output $laptop disable
+bindswitch --reload lid:off output $laptop enable
+
+# idle configuration
+exec swayidle -w timeout 299 'exec brightnessctl --save' \
+     timeout 300 'exec brightnessctl set 20%' \
+     resume 'exec brightnessctl --restore' \
+     timeout 600 'exec brightnessctl set 10%' \
+     resume 'exec brightnessctl --restore'
+
+### key bindings
+
+## basics 
+
+# start terminal
+bindsym $mod+Return exec $term
+bindsym $mod+Shift+Return exec $term-alt
+
+# start launcher
+bindsym $mod+d exec $menu
+bindsym $mod+F2 exec $menu
+
+# clipboard manager
+bindsym $mod+p exec $clip
+bindsym $mod+Shift+p exec $clip_clear
+
+# emoji manager
+bindsym $mod+o exec $emoji
+
+# kill focused window
+bindsym $mod+q kill
+bindsym --whole-window $mod+BTN_MIDDLE kill
+
+# drag floating windows
+floating_modifier $mod normal
+
+# toggle border
+bindsym $mod+Shift+b border toggle
+
+# reload the configuration file
+bindsym $mod+Shift+r reload
+
+# lock and suspend
+bindsym $mod+Shift+s exec 'swaylock -f -C ~/.config/sway-lock/config; systemctl suspend'
+bindsym $mod+Shift+x exec 'swaylock -f -C ~/.config/sway-lock/config; killall waybar; systemctl suspend; waybar'
+
+# exit sway
+bindsym $mod+Shift+q exec 'swaymsg exit'
+
+# media
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym XF86MonBrightnessUp exec brightnessctl set +5%
+
+## moving
+
+# move focus
+bindsym $mod+$left focus left
+bindsym $mod+$down focus down
+bindsym $mod+$up focus up
+bindsym $mod+$right focus right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+bindsym $mod+x [urgent=latest] focus
+
+# move window
+bindsym $mod+Shift+$left move left
+bindsym $mod+Shift+$down move down
+bindsym $mod+Shift+$up move up
+bindsym $mod+Shift+$right move right
+
+# move workspace
+bindsym $mod+Shift+Left move workspace output left
+bindsym $mod+Shift+Down move workspace output down
+bindsym $mod+Shift+Up move workspace output up
+bindsym $mod+Shift+Right move workspace output right
+
+# switch workspace direct
+bindsym $mod+1 workspace $workspace1
+bindsym $mod+2 workspace $workspace2
+bindsym $mod+3 workspace $workspace3
+bindsym $mod+4 workspace $workspace4
+bindsym $mod+5 workspace $workspace5
+bindsym $mod+6 workspace $workspace6
+bindsym $mod+7 workspace $workspace7
+bindsym $mod+8 workspace $workspace8
+bindsym $mod+9 workspace $workspace9
+bindsym $mod+0 workspace $workspace10
+
+# cycle workspaces
+bindsym $mod+Next workspace next
+bindsym $mod+Prior workspace prev
+bindsym $mod+Tab workspace next_on_output
+bindsym $mod+Shift+Tab workspace prev_on_output
+
+# move container to workspace
+bindsym $mod+Shift+Next move container to workspace next; workspace next
+bindsym $mod+Shift+Prior move container to workspace prev; workspace prev
+bindsym $mod+Shift+1 move container to workspace $workspace1
+bindsym $mod+Shift+2 move container to workspace $workspace2
+bindsym $mod+Shift+3 move container to workspace $workspace3
+bindsym $mod+Shift+4 move container to workspace $workspace4
+bindsym $mod+Shift+5 move container to workspace $workspace5
+bindsym $mod+Shift+6 move container to workspace $workspace6
+bindsym $mod+Shift+7 move container to workspace $workspace7
+bindsym $mod+Shift+8 move container to workspace $workspace8
+bindsym $mod+Shift+9 move container to workspace $workspace9
+bindsym $mod+Shift+0 move container to workspace $workspace10
+
+## layout
+
+# split
+bindsym $mod+b splith
+bindsym $mod+v splitv
+
+# switch layout styles
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# toggle fullscreen
+bindsym $mod+f fullscreen
+
+# toggle floating mode
+bindsym $mod+Shift+space floating toggle
+
+# swap tiling and floating focus
+bindsym $mod+space focus mode_toggle
+
+# focus parent container
+bindsym $mod+a focus parent
+
+# move to the scratchpad
+bindsym $mod+minus move scratchpad
+
+# show scratchpad
+bindsym $mod+Shift+minus scratchpad show
+bindsym $mod+plus scratchpad show
+
+## modes
+
+# resize mode
+bindsym $mod+r mode "resize"
+
+# resize bindings
+mode "resize" {
+
+  # resize with direction keys
+  bindsym $left resize shrink width 10px
+  bindsym $down resize grow height 10px
+  bindsym $up resize shrink height 10px
+  bindsym $right resize grow width 10px
+  bindsym Left resize shrink width 10px
+  bindsym Down resize grow height 10px
+  bindsym Up resize shrink height 10px
+  bindsym Right resize grow width 10px
+
+  # quick resize by percentage
+  bindsym 1 resize set width 10ppt; mode "default"
+  bindsym 2 resize set width 20ppt; mode "default"
+  bindsym 3 resize set width 30ppt; mode "default"
+  bindsym 4 resize set width 40ppt; mode "default"
+  bindsym 5 resize set width 50ppt; mode "default"
+  bindsym 6 resize set width 60ppt; mode "default"
+  bindsym 7 resize set width 70ppt; mode "default"
+  bindsym 8 resize set width 80ppt; mode "default"
+  bindsym 9 resize set width 90ppt; mode "default"
+  bindsym shift+1 resize set height 10ppt; mode "default"
+  bindsym shift+2 resize set height 20ppt; mode "default"
+  bindsym shift+3 resize set height 30ppt; mode "default"
+  bindsym shift+4 resize set height 40ppt; mode "default"
+  bindsym shift+5 resize set height 50ppt; mode "default"
+  bindsym shift+6 resize set height 60ppt; mode "default"
+  bindsym shift+7 resize set height 70ppt; mode "default"
+  bindsym shift+8 resize set height 80ppt; mode "default"
+  bindsym shift+9 resize set height 90ppt; mode "default"
+  bindsym $mod+1 resize set width 10ppt; resize set height 10ppt; mode "default"
+  bindsym $mod+2 resize set width 20ppt; resize set height 20ppt; mode "default"
+  bindsym $mod+3 resize set width 30ppt; resize set height 30ppt; mode "default"
+  bindsym $mod+4 resize set width 40ppt; resize set height 40ppt; mode "default"
+  bindsym $mod+5 resize set width 50ppt; resize set height 50ppt; mode "default"
+  bindsym $mod+6 resize set width 60ppt; resize set height 60ppt; mode "default"
+  bindsym $mod+7 resize set width 70ppt; resize set height 70ppt; mode "default"
+  bindsym $mod+8 resize set width 80ppt; resize set height 80ppt; mode "default"
+  bindsym $mod+9 resize set width 90ppt; resize set height 90ppt; mode "default"
+  bindsym $mod+0 resize set width 98ppt; resize set height 96ppt; mode "default"
+
+  # return to default mode
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
+}
+
+# opacity mode
+bindsym $mod+Shift+o mode "opacity"
+
+# opacity bindings
+mode "opacity" {
+
+  # change the opacity
+  bindsym 1 opacity 0.1; mode "default"
+  bindsym 2 opacity 0.2; mode "default"
+  bindsym 3 opacity 0.3; mode "default"
+  bindsym 4 opacity 0.4; mode "default"
+  bindsym 5 opacity 0.5; mode "default"
+  bindsym 6 opacity 0.6; mode "default"
+  bindsym 7 opacity 0.7; mode "default"
+  bindsym 8 opacity 0.8; mode "default"
+  bindsym 9 opacity 0.9; mode "default"
+  bindsym 0 opacity 1; mode "default"
+
+  # return to default mode
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
+}
+
+### appearance
+
+# general
+font $font
+default_border $border
+default_floating_border $border_floating
+gaps inner $gaps_inner
+gaps outer $gaps_outer
+smart_gaps on
+smart_borders on
+
+## colors (border bground text indicator child_border)
+
+# /w border
+#client.focused #000000d6 #000000d6 #c0c0c0ff #2ecc71ff #000000d6
+#client.urgent #000000d6 #900000d6 #c0c0c0ff #2ecc71c0 #00000055
+
+# w/o border
+client.focused #6e727dcc #000000d6 #c0c0c0ff #2ecc71ff #6e727dcc
+client.urgent #900000d6 #900000d6 #c0c0c0ff #2ecc71c0 #90000055
+
+# both
+client.focused_inactive #000000d6 #000000d6 #555555ff #2ecc7155 #000000d6
+client.unfocused #000000d6 #000000d6 #555555ff #2ecc7155 #000000d6
+
+# waybar
+bar {
+  swaybar_command $bar
+}
+
+# workspace display assignments
+workspace $workspace1 output $display1_right $display2_right
+workspace $workspace2 output $display1_right $display2_right
+workspace $workspace4 output $display1_right $display2_right
+workspace $workspace5 output $laptop
+workspace $workspace10 output $display1_right $display2_right
+
+# workspace assignments
+assign [title="Musish"] $workspace10
+assign [title="Apple Music"] $workspace10
+assign [app_id="shortwave"] $workspace10
+assign [class="JDownloader"] $workspace9
+assign [class="minecraft-launcher"] $workspace8
+assign [class="Steam"] $workspace8
+assign [class="Discord"] $workspace5
+assign [class="Signal"] $workspace5
+assign [class="Slack"] $workspace5
+assign [app_id="google-chrome"] $workspace2
+assign [class="Google-chrome"] $workspace2
+assign [class="Firefox"] $workspace2
+assign [class="firefox"] $workspace2
+assign [title="Nagstamon"] $workspace2
+assign [class="@web-apps/softphone"] $workspace5
+for_window [class="@web-apps/softphone"] resize set 350px
+
+# border assignments
+for_window [app_id="google-chrome"] border none
+for_window [app_id="wofi"] border none
+for_window [app_id="pavucontrol"] border normal
+
+# fixed floating mode
+for_window [window_role="task_dialog"] floating enable
+for_window [app_id="pavucontrol"] floating enable
+for_window [app_id="gnome-calculator"] floating enable
+for_window [app_id="gnome-calendar"] floating enable
+
+### startup
+exec dunst
+exec dex --autostart --search-paths $HOME/.config/autostart
+exec lxqt-policykit-agent
+exec wl-paste -t text --watch $HOME/go/bin/clipman store
+exec_always swaymsg workspace $workspace1
