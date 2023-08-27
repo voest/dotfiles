@@ -1,0 +1,7 @@
+dns-resolution: yes
+port-resolution: no
+port-display: on
+link-local: yes
+line-display: one-line-both
+show-totals: yes
+log-scale: yes

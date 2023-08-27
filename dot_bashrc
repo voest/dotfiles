@@ -1,0 +1,304 @@
+### ~/.bashrc
+
+## If not running interactively, don't do anything
+if [[ $- != *i* ]] ; then
+  return
+fi
+
+## global toggles
+use_color=true
+set_xtitle=true
+
+## OS detection
+os=$(uname)
+os=${os,,}
+
+# term
+original_term=${TERM}
+if [ "${os}" == "freebsd" ]; then
+  export TERM=xterm-256color
+fi
+
+## options
+shopt -s autocd
+shopt -s cdspell
+shopt -s checkwinsize
+shopt -s no_empty_cmd_completion
+
+## history
+shopt -s histappend
+HISTCONTROL=ignoreboth
+HISTSIZE=10000
+HISTFILESIZE=20000
+
+## bash completion
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /usr/local/share/bash-completion/bash_completion.sh ]; then
+    . /usr/local/share/bash-completion/bash_completion.sh
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+## less
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+[ -x /usr/local/bin/lesspipe.sh ] && eval "$(SHELL=/bin/sh /usr/local/bin/lesspipe.sh)"
+export LESS="FRXMK"
+
+## xterm title
+if ${set_xtitle} ; then
+  case ${TERM} in
+    [aEkx]term*|rxvt*|gnome*|konsole*|interix)
+      PS1="\[\e]0;\u@\h \w\a\]"
+      ;;
+    *)
+      unset PS1
+      ;;
+  esac
+else
+  unset PS1
+fi
+
+## all the colors
+if ${use_color} ; then
+
+  if [ "${os}" == "freebsd" ]; then
+
+    # freebsd global color support
+    export CLICOLOR=true
+    export CLICOLOR_FORCE=true
+
+    # color shortcuts
+    RESET="\[$(tput me)\]"
+    BOLD="\[$(tput md)\]"
+    DIM="\[$(tput mh)\]"
+    BLACK="\[$(tput AF 0)\]"
+    RED="\[$(tput AF 1)\]"
+    GREEN="\[$(tput AF 2)\]"
+    YELLOW="\[$(tput AF 3)\]"
+    BLUE="\[$(tput AF 4)\]"
+    MAGENTA="\[$(tput AF 5)\]"
+    CYAN="\[$(tput AF 6)\]"
+    LGRAY="\[$(tput AF 7)\]"
+    GRAY="\[$(tput AF 8)\]"
+    LRED="\[$(tput AF 9)\]"
+    LGREEN="\[$(tput AF 10)\]"
+    LYELLOW="\[$(tput AF 11)\]"
+    LBLUE="\[$(tput AF 12)\]"
+    LMAGENTA="\[$(tput AF 13)\]"
+    LCYAN="\[$(tput AF 14)\]"
+    WHITE="\[$(tput AF 15)\]"
+
+    # used for checks
+    MSG_RESET="$(tput me)"
+    MSG_ERROR="$(tput md)$(tput AF 1)"
+    MSG_WARN="$(tput md)$(tput AF 3)"
+    MSG_OK="$(tput md)$(tput AF 2)"
+
+    # gdircolors
+    if [ -x /usr/local/bin/gdircolors ]; then
+      test -r ~/.dircolors && eval "$(gdircolors -b ~/.dircolors)" || eval "$(gdircolors -b)"
+    fi
+
+    # ls command
+    if [ -x /usr/local/bin/gnuls ]; then
+      ls="gnuls"
+    else
+      ls="ls"
+    fi
+
+  else
+
+    # color shortcuts
+    RESET="\[$(tput sgr0)\]"
+    BOLD="\[$(tput bold)\]"
+    DIM="\[$(tput dim)\]"
+    BLACK="\[$(tput setaf 0)\]"
+    RED="\[$(tput setaf 1)\]"
+    GREEN="\[$(tput setaf 2)\]"
+    YELLOW="\[$(tput setaf 3)\]"
+    BLUE="\[$(tput setaf 4)\]"
+    MAGENTA="\[$(tput setaf 5)\]"
+    CYAN="\[$(tput setaf 6)\]"
+    LGRAY="\[$(tput setaf 7)\]"
+    GRAY="\[$(tput setaf 8)\]"
+    LRED="\[$(tput setaf 9)\]"
+    LGREEN="\[$(tput setaf 10)\]"
+    LYELLOW="\[$(tput setaf 11)\]"
+    LBLUE="\[$(tput setaf 12)\]"
+    LMAGENTA="\[$(tput setaf 13)\]"
+    LCYAN="\[$(tput setaf 14)\]"
+    WHITE="\[$(tput setaf 15)\]"
+
+    # used for checks
+    MSG_RESET="$(tput sgr0)"
+    MSG_ERROR="$(tput bold)$(tput setaf 1)"
+    MSG_WARN="$(tput bold)$(tput setaf 3)"
+    MSG_OK="$(tput bold)$(tput setaf 2)"
+
+    # dircolors
+    if [ -x /usr/bin/dircolors ]; then
+      test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    fi
+
+    # ls command
+    ls="ls"
+
+  fi
+
+  # less colors
+  export LESS_TERMCAP_mb=$'\E[01;31m'
+  export LESS_TERMCAP_md=$'\E[01;31m'
+  export LESS_TERMCAP_me=$'\E[0m'
+  export LESS_TERMCAP_se=$'\E[0m'
+  export LESS_TERMCAP_so=$'\E[01;44;33m'
+  export LESS_TERMCAP_ue=$'\E[0m'
+  export LESS_TERMCAP_us=$'\E[01;32m'
+
+  # color aliases
+  if [ "${os}" == "linux" ]; then
+    alias diff='diff --color=auto'
+    alias diffc='diff --color=auto'
+  fi
+  alias dir='dir --color=auto'
+  alias egrep='egrep --color=auto'
+  alias fgrep='fgrep --color=auto'
+  alias grep='grep --color=auto'
+  alias ip='ip -color'
+  alias ls="${ls} --color=auto"
+  alias ncdu='ncdu --color dark'
+  alias ncduc='ncdu --color dark'
+  alias vdir='vdir --color=auto'
+  if [ "${os}" == "freebsd" ]; then
+    alias gnu-watch='gnu-watch --color'
+  else
+    alias watch='watch --color'
+  fi
+
+  # git ps1 options
+  GIT_PS1_SHOWDIRTYSTATE=true
+  declare -f __git_ps1 > /dev/null
+  if [[ $? -ne 0 ]]; then
+    __git_ps1 () { return; }
+  fi
+
+  # color prompt: exit code
+  PS1+="${BOLD}${RED}"
+  PS1+='$( ec=$?; [ $ec -ne 0 ] && echo "$ec " )'
+  PS1+="${RESET}"
+  if [[ ${EUID} -eq 0 ]]; then
+    # root
+    PS1+="${BOLD}${RED}\u${RESET}@\h${BOLD} \w ${RESET}\$(__git_ps1 \"${MAGENTA}[${GREEN}%s${MAGENTA}] \")${RESET}\\$ "
+  else
+    # user
+    PS1+="${BOLD}${BLUE}\u${RESET}@\h${BOLD} \w ${RESET}\$(__git_ps1 \"${MAGENTA}[${GREEN}%s${MAGENTA}] \")${RESET}\\$ "
+  fi
+
+else
+
+  # mono prompt
+  PS1+='$( ec=$?; [ $ec -ne 0 ] && echo "($ec) " )'
+  if [[ ${EUID} -eq 0 ]]; then
+    # root
+    PS1+="\u@\h [\w] \\$ "
+  else
+    # user
+    PS1+="\u@\h \w \\$ "
+  fi
+
+fi
+unset use_color
+
+## functions
+
+# cd to repository root
+function cd.tl () {
+  cd $(git rev-parse --show-toplevel)
+}
+
+# jq with pager
+function jq.less () {
+  if [ $# -eq 0 ]; then
+    command jq -C . | less
+  else
+    command jq -C $* | less
+  fi
+}
+
+## aliases
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias agh='ag --hidden'
+alias cdh='eval cd ~$USER'
+alias chown.me='sudo chown $(id -u):$(id -g)'
+alias chown.root='sudo chown 0:0'
+alias curl.dl='curl -O'
+alias curls='curl -s'
+if [ "${os}" == "freebsd" ]; then
+  alias df.real='df -t nodevfs'
+else
+  alias df.real='df -x squashfs -x tmpfs -x devtmpfs'
+fi
+alias dig.cloudflare='dig @1.1.1.1'
+alias dig.google='dig @8.8.8.8'
+alias dig.quad9='dig @9.9.9.9'
+alias dig.systemd='resolvectl query'
+alias digs="dig +short"
+alias digs.cloudflare='digs @1.1.1.1'
+alias digs.google='digs @8.8.8.8'
+alias digs.quad9='digs @9.9.9.9'
+alias digx="dig +short -x"
+alias fdh='fd --hidden'
+alias ft='export TERM=xterm-256color'
+alias L='less'
+alias l='ls -CF'
+alias la='ls -A'
+alias ll='ls -alF'
+if [ "${os}" == "freebsd" ]; then
+  alias lh='ls -halF'
+else
+  alias lh='ls -halFv'
+fi
+alias mount.real='mount | grep --color=never -e "^/dev"'
+alias plm='pulsemixer'
+alias r='source ${HOME}/.bashrc'
+alias rt="export TERM=${original_term}"
+alias ss.listen='ss -tulpn | column | less'
+alias ss.listenv='ss -tulpen | column | less'
+alias sudoe="sudo -s -E"
+alias sudoi="sudo -i"
+alias sudoiu="sudo -i -u"
+alias sudou="sudo -u"
+alias t="task"
+alias trans.brief='trans --brief'
+alias trans.de='trans en:de'
+alias trans.en='trans de:en'
+alias tw="timew"
+alias vi='vim'
+alias vip='vim -p'
+if [[ "${XDG_SESSION_TYPE}" == 'wayland' ]]; then
+  alias xc='wl-copy'
+  alias xp='wl-paste'
+elif [[ "${XDG_SESSION_TYPE}" == '11' ]]; then
+  alias xc='xsel -i -b'
+  alias xp='xsel -o -b'
+fi
+
+## env
+export EDITOR=vim
+export PATH="${HOME}/bin:${HOME}/.local/bin:${PATH}"
+export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.socket"
+
+## checks
+[ ! -e "${HISTFILE}" ] && touch "${HISTFILE}" && chmod 0600 "${HISTFILE}"
+[ ! -e "${HOME}/.viminfo" ] && touch "${HOME}/.viminfo" && chmod 0600 "${HOME}/.viminfo"
+[ -e "${HISTFILE}" ] && [ ! -w "${HISTFILE}" ] && echo -e "${MSG_ERROR}history file not writable${MSG_RESET}\n"
+[ -e "${HOME}/.viminfo" ] && [ ! -w "${HOME}/.viminfo" ] && echo -e "${MSG_ERROR}.viminfo file not writable${MSG_RESET}\n"
+
+# reset check exit code
+true
+
+source "$HOME/.cargo/env"
