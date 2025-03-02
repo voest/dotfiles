@@ -1,0 +1,77 @@
+### GRML UNDO ###
+unalias -m ag
+typeset -f trans >/dev/null && unfunction trans
+
+### PLUGINS ###
+
+
+
+
+### End of Zinit's installer chunk
+
+# zinit
+source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
+# Load a few important annexes, without Turbo
+zinit light-mode for \
+    zdharma-continuum/zinit-annex-as-monitor \
+    zdharma-continuum/zinit-annex-bin-gem-node \
+    zdharma-continuum/zinit-annex-patch-dl \
+    zdharma-continuum/zinit-annex-rust
+zinit light zdharma-continuum/fast-syntax-highlighting
+zinit snippet OMZL::git.zsh
+zinit snippet OMZP::git/git.plugin.zsh
+zinit snippet OMZP::systemd/systemd.plugin.zsh
+[[ -z "${SUDO_USER}" ]] && zinit wait lucid \
+	atload"zicompinit; zicdreplay" blockf for zsh-users/zsh-completions
+
+# fzf
+[[ ! -f /usr/share/fzf/key-bindings.zsh ]] || source /usr/share/fzf/key-bindings.zsh
+
+# command-not-found
+[[ ! -f /usr/share/doc/pkgfile/command-not-found.zsh ]] || source /usr/share/doc/pkgfile/command-not-found.zsh
+[[ ! -f /etc/zsh_command_not_found ]] || source /etc/zsh_command_not_found
+
+### ENV ###
+export EDITOR=nvim
+export GPG_TTY=$(tty)
+export PATH=${PATH}:${HOME}/bin:${HOME}/.local/bin:${HOME}/go/bin
+export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.socket"
+
+### HASHES ###
+hash -d config=${HOME}/.config
+hash -d run=${XDG_RUNTIME_DIR}
+hash -d media=/run/media/${USER}
+
+### PROMPT ###
+prompt off
+eval "$(starship init zsh)"
+
+### SETTINGS ###
+source "${HOME}/.zsh/aliases.zsh"
+source "${HOME}/.zsh/functions.zsh"
+
+# history
+zshaddhistory() {
+  case $PWD in
+    (${HOME}/Downloads/jd) return 1;;
+    (${HOME}/Downloads/jd/*) return 1;;
+    (*) return 0;;
+  esac
+}
+#setopt inc_append_history
+#setopt share_history
+
+# fzf
+export FZF_DEFAULT_OPTS='--color=fg:#c6c6c4,bg:-1,hl:#ffd700 --color=fg+:#c6c6c4,bg+:#121212,hl+:#fdff00 --color=info:#20b2aa,prompt:#009f6b,pointer:#c40233 --color=marker:#03c03c,spinner:#af5fff,header:#20b2aa'
+
+# less
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+export LESS="FRXMK"
+
+# zle
+bindkey '^xe' edit-command-line
+
+# zsh-autosuggestions
+bindkey "\e[Z" autosuggest-accept  # shift+tab
