@@ -3,9 +3,7 @@ unalias -m ag
 typeset -f trans >/dev/null && unfunction trans
 
 ### PLUGINS ###
-
-
-
+eval "$(mise activate zsh)"
 
 ### End of Zinit's installer chunk
 
@@ -22,6 +20,7 @@ zinit light-mode for \
 zinit light zdharma-continuum/fast-syntax-highlighting
 zinit snippet OMZL::git.zsh
 zinit snippet OMZP::git/git.plugin.zsh
+zinit snippet OMZP::kubectl/kubectl.plugin.zsh
 zinit snippet OMZP::systemd/systemd.plugin.zsh
 [[ -z "${SUDO_USER}" ]] && zinit wait lucid \
 	atload"zicompinit; zicdreplay" blockf for zsh-users/zsh-completions

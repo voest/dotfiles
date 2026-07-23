@@ -1,32 +1,44 @@
-"******************************************************************************"
-" File:     .vimrc                                                             "
-" Version:  2021-11-20                                                         "
-" Contact:  andreas.voest@gmail.com                                            "
-"******************************************************************************"
-
 " distro defaults
 runtime! archlinux.vim
 runtime! defaults.vim
 
+lua << EOF
+
+vim.pack.add({
+  'https://github.com/dense-analysis/ale',
+  'https://github.com/editorconfig/editorconfig-vim',
+  'https://github.com/hashivim/vim-terraform',
+  'https://github.com/junegunn/fzf.vim',
+  'https://github.com/junegunn/vim-peekaboo',
+  'https://github.com/nvim-lualine/lualine.nvim',
+  'https://github.com/pedrohdz/vim-yaml-folds',
+  'https://github.com/tpope/vim-commentary',
+  'https://github.com/tpope/vim-fugitive',
+  { src = "https://github.com/catppuccin/nvim", name = "catppuccin" },
+  'https://github.com/rafi/awesome-vim-colorschemes',
+})
+
+EOF
+
 " vundle
-filetype off
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-  Plugin 'VundleVim/Vundle.vim'
-  Plugin 'dense-analysis/ale'
-  Plugin 'editorconfig/editorconfig-vim'
-  Plugin 'hashivim/vim-terraform'
-  Plugin 'junegunn/fzf.vim'
-  Plugin 'junegunn/vim-easy-align'
-  Plugin 'junegunn/vim-peekaboo'
-  Plugin 'pedrohdz/vim-yaml-folds'
-  Plugin 'rafi/awesome-vim-colorschemes'
-  Plugin 'tpope/vim-commentary'
-  Plugin 'tpope/vim-fugitive'
-  Plugin 'tveskag/nvim-blame-line'
-  Plugin 'vim-airline/vim-airline'
-	Plugin 'terrastruct/d2-vim'
-call vundle#end()
+"filetype off
+"set rtp+=~/.vim/bundle/Vundle.vim
+"call vundle#begin()
+"  Plugin 'VundleVim/Vundle.vim'
+"  Plugin 'dense-analysis/ale'
+"  Plugin 'editorconfig/editorconfig-vim'
+"  Plugin 'hashivim/vim-terraform'
+"  Plugin 'junegunn/fzf.vim'
+"  Plugin 'junegunn/vim-easy-align'
+"  Plugin 'junegunn/vim-peekaboo'
+"  Plugin 'pedrohdz/vim-yaml-folds'
+"  Plugin 'rafi/awesome-vim-colorschemes'
+"  Plugin 'tpope/vim-commentary'
+"  Plugin 'tpope/vim-fugitive'
+"  Plugin 'tveskag/nvim-blame-line'
+"  Plugin 'vim-airline/vim-airline'
+"  Plugin 'terrastruct/d2-vim'
+"call vundle#end()
 
 " syntax highlighting
 if has("syntax")
@@ -73,7 +85,7 @@ endif
 
 " colors
 set background=dark
-colorscheme spacecamp
+colorscheme catppuccin-mocha
 hi Normal guibg=NONE ctermbg=NONE
 hi EndOfBuffer guibg=NONE ctermbg=NONE
 
@@ -81,9 +93,24 @@ hi EndOfBuffer guibg=NONE ctermbg=NONE
 set laststatus=2
 set statusline=%<[%n]\ %.90F\ %y\ %m%r%=%{exists('g:loaded_fugitive')?fugitive#statusline():''}\ %{&enc}[%{(&fenc!=&enc)?&fenc.':':''}%{&ff}]\ %13.(%c,%l/%L%)\ %6.((%p%%)%)
 
-" airline
-let g:airline#extensions#tabline#enabled = 1
-let g:airline_powerline_fonts = 1
+" lualine
+lua << END
+require('lualine').setup {
+  options = {
+    theme = 'nightfly',
+    section_separators = { left = '', right = '' },
+    component_separators = { left = '', right = '' },
+  },
+  tabline = {
+    lualine_a = {'buffers'},
+    lualine_b = {},
+    lualine_c = {},
+    lualine_x = {},
+    lualine_y = {},
+    lualine_z = {'tabs'}
+  },
+}
+END
 
 " nerdtree lite
 let g:netrw_banner = 0
@@ -103,7 +130,9 @@ set incsearch
 set hlsearch
 
 " key bindings
-set pastetoggle=<F5>
+"set pastetoggle=<F5>
+
+nmap <silent> <f5> :set paste! <CR>
 nmap <C-B> :ToggleBlameLine <CR>
 nmap <C-F> :BLines <CR>
 nmap <C-L> :set list! \| exec &list!=""? "echo 'list'" : "echo 'nolist'" <CR>
