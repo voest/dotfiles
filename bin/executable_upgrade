@@ -1,0 +1,146 @@
+#!/bin/bash
+
+efi_backup_dir="/boot/efi-backup"
+snapshot_dir="@snapshots"
+snapshot_prefix="@arch-upgrade"
+snapshot_max_age=7
+upgrade_timestamp=$(date -Is)
+
+function msg () {
+  echo -n "$(tput bold)=> $(tput setaf 3)"
+  echo "$*$(tput sgr0)"
+}
+
+# optional command
+cmd=$1
+
+# root check
+if [[ $EUID -ne 0 ]]; then
+  echo "you're not root... duh!"
+  exit 1
+fi
+
+# sudo check
+if [[ -z $SUDO_USER ]]; then
+  echo "please run with sudo."
+  exit 1
+fi
+
+# get root partition uuid and create mount point
+rootfs=$(findmnt -o +UUID -J / | jq '.filesystems[] .uuid')
+mountpoint=$(mktemp -d)
+
+# list snapshots
+if [[ "$cmd" == "ls" ]]; then
+  msg Snapshots
+  mount UUID="${rootfs}" -o subvol=/ "${mountpoint}"
+  btrfs subvolume list -r "${mountpoint}" | grep "${snapshot_dir}/${snapshot_prefix}"
+  umount "${mountpoint}"
+  rmdir "${mountpoint}"
+  exit
+fi
+
+# delete snapshots
+if [[ "$cmd" == "rm" ]]; then
+  msg Delete all snapshots
+  mount UUID="${rootfs}" -o subvol=/ "${mountpoint}"
+  btrfs subvolume list -r "${mountpoint}" | \
+    grep "${snapshot_dir}/${snapshot_prefix}" | \
+    rev | cut -d ' ' -f 1 | rev | \
+    xargs -r -I% btrfs subvolume delete -c "${mountpoint}/%" | \
+    sed "s#${mountpoint}/##g"
+  umount "${mountpoint}"
+  rmdir "${mountpoint}"
+  exit
+fi
+
+# unknown
+if [[ -n "$cmd" ]]; then
+  echo "Unknown command"
+  exit 1
+fi
+
+# /efi backup
+msg Create /efi backup
+efi_backup="${efi_backup_dir}/efi-${upgrade_timestamp}"
+mkdir -p "${efi_backup}"
+cp -avr "/efi" "${efi_backup}" && echo "done"
+touch "${efi_backup}"
+echo
+
+# rootfs snapshot
+msg Create snapshot
+snapshot="${snapshot_dir}/${snapshot_prefix}-${upgrade_timestamp}"
+if mount UUID="${rootfs}" -o subvol=/ "${mountpoint}"; then
+  touch /
+  btrfs subvolume snapshot -r "${mountpoint}/@" "${mountpoint}/${snapshot}" | sed "s#${mountpoint}/##g"
+  rm -r "${efi_backup}"
+fi
+echo
+
+# packages w/o kernel
+msg Packages w/o kernel
+pacman -Syu --ignore linux
+echo
+
+# aur packages
+msg AUR Packages
+sudo -u "${SUDO_USER}" yay --aur -Syu
+echo
+
+# flatpaks
+msg Flatpaks
+flatpak update
+echo
+
+# zinit
+msg zinit
+sudo -u "${SUDO_USER}" zsh -ilsc 'zinit update'
+echo
+
+# mise
+msg mise
+sudo -u "${SUDO_USER}" zsh -ilsc 'mise up'
+echo
+
+# kernel
+msg Kernel
+pacman -Su
+echo
+
+# cache
+msg Clean cache
+paccache -r
+echo
+
+# autoremove
+msg Clean unused dependencies
+unused=$(pacman -Qdtq)
+if [[ -z "${unused}" ]]; then
+  echo "Nothing to do."
+else
+  # shellcheck disable=2086
+  pacman -Rs ${unused}
+fi
+echo
+
+# new configs
+msg New configs
+fd -H pacnew /etc
+echo
+
+# remove old snapshots
+msg Prune old snapshots
+snapshots=$(btrfs subvolume list -r "${mountpoint}" | \
+  grep "${snapshot_dir}/${snapshot_prefix}" | rev | \
+  cut -d ' ' -f 1 | cut -d '/' -f 1 | \
+  rev | \
+  xargs -r -I% find "${mountpoint}/${snapshot_dir}" -mindepth 1 -maxdepth 1 -type d -name '%' -mtime +${snapshot_max_age})
+if [[ -z "${snapshots}" ]]; then
+  echo "No snapshots to prune"
+else
+  echo "$snapshots" | xargs -r -I% btrfs subvolume delete -c % | \
+  sed "s#${mountpoint}/##g"
+fi
+umount "${mountpoint}"
+rmdir "${mountpoint}"
