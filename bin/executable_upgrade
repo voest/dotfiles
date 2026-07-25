@@ -64,7 +64,7 @@ fi
 msg Create /efi backup
 efi_backup="${efi_backup_dir}/efi-${upgrade_timestamp}"
 mkdir -p "${efi_backup}"
-cp -av "/efi" "${efi_backup}" && echo "done"
+cp -ar "/efi" "${efi_backup}" && echo "done"
 touch "${efi_backup}"
 echo
 
