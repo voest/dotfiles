@@ -29,7 +29,7 @@ endif
 set vb t_vb=
 
 " disable intro
-set shortmess=filnxtToOI
+set shortmess=ltToOCFI
 
 " disable mouse
 set mouse=
