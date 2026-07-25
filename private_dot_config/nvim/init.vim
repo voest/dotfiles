@@ -20,26 +20,6 @@ vim.pack.add({
 
 EOF
 
-" vundle
-"filetype off
-"set rtp+=~/.vim/bundle/Vundle.vim
-"call vundle#begin()
-"  Plugin 'VundleVim/Vundle.vim'
-"  Plugin 'dense-analysis/ale'
-"  Plugin 'editorconfig/editorconfig-vim'
-"  Plugin 'hashivim/vim-terraform'
-"  Plugin 'junegunn/fzf.vim'
-"  Plugin 'junegunn/vim-easy-align'
-"  Plugin 'junegunn/vim-peekaboo'
-"  Plugin 'pedrohdz/vim-yaml-folds'
-"  Plugin 'rafi/awesome-vim-colorschemes'
-"  Plugin 'tpope/vim-commentary'
-"  Plugin 'tpope/vim-fugitive'
-"  Plugin 'tveskag/nvim-blame-line'
-"  Plugin 'vim-airline/vim-airline'
-"  Plugin 'terrastruct/d2-vim'
-"call vundle#end()
-
 " syntax highlighting
 if has("syntax")
   syntax on
@@ -119,6 +99,7 @@ let g:netrw_liststyle = 3
 " line numbers
 set number
 set numberwidth=4
+set cursorline
 
 " tabstop
 set tabstop=2
@@ -130,8 +111,6 @@ set incsearch
 set hlsearch
 
 " key bindings
-"set pastetoggle=<F5>
-
 nmap <silent> <f5> :set paste! <CR>
 nmap <C-B> :ToggleBlameLine <CR>
 nmap <C-F> :BLines <CR>

@@ -64,7 +64,7 @@ fi
 msg Create /efi backup
 efi_backup="${efi_backup_dir}/efi-${upgrade_timestamp}"
 mkdir -p "${efi_backup}"
-cp -avr "/efi" "${efi_backup}" && echo "done"
+cp -av "/efi" "${efi_backup}" && echo "done"
 touch "${efi_backup}"
 echo
 
@@ -98,11 +98,16 @@ msg zinit
 sudo -u "${SUDO_USER}" zsh -ilsc 'zinit update'
 echo
 
+# nvim
+msg nvim
+sudo -u "${SUDO_USER}" zsh -ilsc "nvim '+lua vim.pack.update()'"
+echo
+
 # mise
 msg mise
 sudo -u "${SUDO_USER}" zsh -ilsc 'mise up'
 echo
-
+ 
 # kernel
 msg Kernel
 pacman -Su
