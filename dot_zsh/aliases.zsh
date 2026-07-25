@@ -25,6 +25,7 @@ alias intro='clear && echo "pimp\n    my\n        shell" | figlet | lolcat -a -t
 alias tg='command terragrunt'
 alias tf='command terraform'
 alias dmesgf='command sudo dmesg -wH'
+alias vialiases='${EDITOR} "${HOME}/.zsh/aliases.zsh"'
 alias vissh='${EDITOR} "${HOME}/.ssh/config"'
 alias cz='command chezmoi'
 alias cza='command chezmoi add'
