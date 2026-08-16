@@ -1,7 +1,7 @@
 {
   "plugins": {
     "ale": {
-      "rev": "d0ea94323207abcdee717d76bb57b38d46055664",
+      "rev": "199a95d386cb856c27e5b90d4e3ea8bd45a58c23",
       "src": "https://github.com/dense-analysis/ale"
     },
     "awesome-vim-colorschemes": {
@@ -9,7 +9,7 @@
       "src": "https://github.com/rafi/awesome-vim-colorschemes"
     },
     "catppuccin": {
-      "rev": "79e2049a0fdf7ec840f8463fe1d962c94493196b",
+      "rev": "edefef779ab08ce1a4a404713e3012b0d202bd35",
       "src": "https://github.com/catppuccin/nvim"
     },
     "editorconfig-vim": {
