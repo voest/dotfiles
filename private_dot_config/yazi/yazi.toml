@@ -1,0 +1,12 @@
+[plugin]
+  prepend_preloaders = [
+    { mime = "{audio,video,image}/*", run = "mediainfo" },
+    { mime = "{image}/*", run = "mediainfo --no-metadata" },
+    { mime = "{video}/*", run = "mediainfo --no-preview" },
+  ]
+
+  prepend_previewers = [
+    { mime = "{audio,video,image}/*", run = "mediainfo"},
+    { mime = "{image}/*", run = "mediainfo --no-metadata" },
+    { mime = "{video}/*", run = "mediainfo --no-preview" },
+  ]
