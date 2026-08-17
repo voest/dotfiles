@@ -1,11 +1,67 @@
 [user]
-	name = {{ .name }}
-	email = {{ .email }}
+  name = {{ .name }}
+  email = {{ .email }}
+
 [push]
-	default = current
+  default = current
+
+[rebase]
+  autoStash = true
+
 [log]
-	showSignature = false
+  showSignature = false
+  mailmap = true
+
+[mailmap]
+  file = ~/.mailmap
+
+## git-delta settings
+
+[core]
+  pager = delta
+  attributesfile = ~/.gitattributes
+
+[diff]
+  colorMoved = default
+
+[diff "dyff"]
+  command = "dyff_between() { dyff --color on between \"$2\" \"$5\"; }; dyff_between"
+
+[interactive]
+  diffFilter = delta --color-only
+
+[merge]
+  conflictstyle = diff3
+
+[delta]
+  commit-decoration-style = blue ol
+  commit-style = raw
+  features = line-numbers
+  file-decoration-style = blue ol ul
+  file-modified-label =
+  file-style = bright-yellow
+  hunk-header-decoration-style = blue box
+  hunk-header-line-number-style = "#067a00"
+  hunk-header-style = line-number syntax
+  navigate = true
+  relative-paths = true
+  syntax-theme = DarkNeon
+  true-color = always
+
+[delta "line-numbers"]
+  line-numbers = true
+
+[delta "no-line-numbers"]
+  line-numbers = false
+
 [pull]
-	rebase = true
+  default = current
+  ff = only
+
 [init]
-	defaultBranch = main
+  defaultBranch = main
+
+[tig]
+  mailmap = true
+  main-view-date-display = relative-compact
+  main-view-id-display = yes
