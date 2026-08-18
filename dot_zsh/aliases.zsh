@@ -113,7 +113,7 @@ alias wttr='command curl https://wttr.in/Augsburg'
 if [[ "${XDG_SESSION_TYPE}" == 'wayland' ]]; then
   alias xc='command wl-copy'
   alias xp='command wl-paste'
-elif [[ "${XDG_SESSION_TYPE}" == '11' ]]; then
+elif [[ "${XDG_SESSION_TYPE}" == 'x11' ]]; then
   alias xc='command xsel -i -b'
   alias xp='command xsel -o -b'
 fi
@@ -169,7 +169,7 @@ alias kns='command kubens'
 alias kubectl='kubecolor'
 alias cilium-dbg='kubectl -n kube-system exec -it ds/cilium -- cilium-dbg'
 alias fluxlf="flux logs --since 5m -A -f"
-alias fluxns='flux -n \$(kgcns)'
+alias fluxns="flux -n \$(kubectl config view --minify --output 'jsonpath={..namespace}')"
 alias fluxup='command flux reconcile ks flux-system --with-source'
 
 # ls
