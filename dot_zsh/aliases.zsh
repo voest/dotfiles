@@ -1,8 +1,7 @@
 # no time!
 alias A='alias'
 alias AG='A | G'
-alias B='command bat'
-alias C='command cat'
+alias C='bat -p'
 alias G='rg'
 alias GV='rg -v'
 alias L='command less'
@@ -13,7 +12,7 @@ alias T='command tail -f'
 
 # general
 alias bc='command bc -l -q'
-alias cat='command bat -p'
+alias cat='bat -p'
 alias cdh='eval cd ~$USER'
 alias cert.info='command openssl x509 -text -noout -in'
 if [ -z "${SUDO_UID}" ] && [ -z "${SUDO_GUID}" ]; then
