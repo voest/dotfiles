@@ -2,10 +2,8 @@ README.md
 LICENSE
 
 {{- if ne .chezmoi.hostname "birb" }}
- bin/upgrade
 .config/nvim
 .config/qterminal.org/qterminal.ini
-.zshrc.local
 {{- end }}
 
 {{- if ne .chezmoi.osRelease.id "ubuntu" }}
