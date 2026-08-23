@@ -1,7 +1,7 @@
 {
   "plugins": {
     "ale": {
-      "rev": "199a95d386cb856c27e5b90d4e3ea8bd45a58c23",
+      "rev": "e1789bc54483d76ac9ddb40b633d1645c8281914",
       "src": "https://github.com/dense-analysis/ale"
     },
     "awesome-vim-colorschemes": {
