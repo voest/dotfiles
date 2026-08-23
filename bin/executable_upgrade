@@ -14,43 +14,43 @@ function msg () {
 # optional command
 cmd=$1
 
-# root check
-if [[ $EUID -ne 0 ]]; then
-  echo "you're not root... duh!"
-  exit 1
-fi
+# # root check
+# if [[ $EUID -ne 0 ]]; then
+#   echo "you're not root... duh!"
+#   exit 1
+# fi
 
-# sudo check
+# privileges check
 if [[ -z $SUDO_USER ]]; then
-  echo "please run with sudo."
+	run0 --empower "$0"
   exit 1
 fi
 
 # get root partition uuid and create mount point
 rootfs=$(findmnt -o +UUID -J / | jq '.filesystems[] .uuid')
-mountpoint=$(mktemp -d)
+mountpoint=$(run0 mktemp -d)
 
 # list snapshots
 if [[ "$cmd" == "ls" ]]; then
   msg Snapshots
-  mount UUID="${rootfs}" -o subvol=/ "${mountpoint}"
-  btrfs subvolume list -r "${mountpoint}" | grep "${snapshot_dir}/${snapshot_prefix}"
-  umount "${mountpoint}"
-  rmdir "${mountpoint}"
+  run0 mount UUID="${rootfs}" -o subvol=/ "${mountpoint}"
+  run0 btrfs subvolume list -r "${mountpoint}" | grep "${snapshot_dir}/${snapshot_prefix}"
+  run0 umount "${mountpoint}"
+  run0 rmdir "${mountpoint}"
   exit
 fi
 
 # delete snapshots
 if [[ "$cmd" == "rm" ]]; then
   msg Delete all snapshots
-  mount UUID="${rootfs}" -o subvol=/ "${mountpoint}"
-  btrfs subvolume list -r "${mountpoint}" | \
+  run0 mount UUID="${rootfs}" -o subvol=/ "${mountpoint}"
+  run0 btrfs subvolume list -r "${mountpoint}" | \
     grep "${snapshot_dir}/${snapshot_prefix}" | \
     rev | cut -d ' ' -f 1 | rev | \
-    xargs -r -I% btrfs subvolume delete -c "${mountpoint}/%" | \
+    xargs -r -I% run0 btrfs subvolume delete -c "${mountpoint}/%" | \
     sed "s#${mountpoint}/##g"
-  umount "${mountpoint}"
-  rmdir "${mountpoint}"
+  run0 umount "${mountpoint}"
+  run0 rmdir "${mountpoint}"
   exit
 fi
 
@@ -63,59 +63,59 @@ fi
 # /efi backup
 msg Create /efi backup
 efi_backup="${efi_backup_dir}/efi-${upgrade_timestamp}"
-mkdir -p "${efi_backup}"
-cp -ar "/efi" "${efi_backup}" && echo "done"
-touch "${efi_backup}"
+run0 mkdir -p "${efi_backup}"
+run0 cp -ar "/efi" "${efi_backup}" && echo "done"
+run0 touch "${efi_backup}"
 echo
 
 # rootfs snapshot
 msg Create snapshot
 snapshot="${snapshot_dir}/${snapshot_prefix}-${upgrade_timestamp}"
-if mount UUID="${rootfs}" -o subvol=/ "${mountpoint}"; then
-  touch /
-  btrfs subvolume snapshot -r "${mountpoint}/@" "${mountpoint}/${snapshot}" | sed "s#${mountpoint}/##g"
+if run0 mount UUID="${rootfs}" -o subvol=/ "${mountpoint}"; then
+  run0 touch /
+  run0 btrfs subvolume snapshot -r "${mountpoint}/@" "${mountpoint}/${snapshot}" | sed "s#${mountpoint}/##g"
   rm -r "${efi_backup}"
 fi
 echo
 
 # packages w/o kernel
 msg Packages w/o kernel
-pacman -Syu --ignore linux
+run0 pacman -Syu --ignore linux
 echo
 
 # aur packages
 msg AUR Packages
-sudo -u "${SUDO_USER}" yay --aur -Syu
+yay --aur -Syu
 echo
 
 # flatpaks
 msg Flatpaks
-flatpak update
+run0 flatpak update
 echo
 
 # zinit
 msg zinit
-sudo -u "${SUDO_USER}" zsh -ilsc 'zinit update'
+zsh -ilsc 'zinit update'
 echo
 
 # nvim
 msg nvim
-sudo -u "${SUDO_USER}" zsh -ilsc "nvim '+lua vim.pack.update()'"
+nvim '+lua vim.pack.update()'
 echo
 
 # mise
 msg mise
-sudo -u "${SUDO_USER}" zsh -ilsc 'mise up'
+mise up
 echo
  
 # kernel
 msg Kernel
-pacman -Su
+run0 pacman -Su
 echo
 
 # cache
 msg Clean cache
-paccache -r
+run0 paccache -r
 echo
 
 # autoremove
@@ -125,18 +125,18 @@ if [[ -z "${unused}" ]]; then
   echo "Nothing to do."
 else
   # shellcheck disable=2086
-  pacman -Rs ${unused}
+  run0 pacman -Rs ${unused}
 fi
 echo
 
 # new configs
 msg New configs
-fd -H pacnew /etc
+run0 fd -H pacnew /etc
 echo
 
 # remove old snapshots
 msg Prune old snapshots
-snapshots=$(btrfs subvolume list -r "${mountpoint}" | \
+snapshots=$(run0 btrfs subvolume list -r "${mountpoint}" | \
   grep "${snapshot_dir}/${snapshot_prefix}" | rev | \
   cut -d ' ' -f 1 | cut -d '/' -f 1 | \
   rev | \
@@ -144,8 +144,8 @@ snapshots=$(btrfs subvolume list -r "${mountpoint}" | \
 if [[ -z "${snapshots}" ]]; then
   echo "No snapshots to prune"
 else
-  echo "$snapshots" | xargs -r -I% btrfs subvolume delete -c % | \
+  echo "$snapshots" | xargs -r -I% run0 btrfs subvolume delete -c % | \
   sed "s#${mountpoint}/##g"
 fi
-umount "${mountpoint}"
-rmdir "${mountpoint}"
+run0 umount "${mountpoint}"
+run0 rmdir "${mountpoint}"
