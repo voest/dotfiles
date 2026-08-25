@@ -10,6 +10,9 @@ alias PGW="command watch pgrep -a"
 alias S='command sort'
 alias T='command tail -f'
 
+# trial
+alias pwdxc='command pwd | xc --trim'
+
 # general
 alias bc='command bc -l -q'
 alias cat='bat -p'
@@ -153,7 +156,6 @@ alias gstm="command git status --short | rg '^ M' | cut -f3- -d' '"
 # k8s
 alias k9sro='k9s --readonly'
 alias k='command kubecolor'
-alias kapi='kubectl --force-colors --no-headers=true api-resources | fzf --ansi'
 alias kctx='command kubectx'
 alias kd='kubectl describe'
 alias kdA='kubectl describe -A'

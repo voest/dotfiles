@@ -99,6 +99,17 @@ fuction xtimes() {
   repeat $copies print -r -- "$input"
 }
 
+
+# copy kubernetes resource type to clipboard
+function kapi() {
+  kubectl --force-colors --no-headers=true api-resources \
+    | fzf --ansi \
+    | awk '{print NF, $0}' \
+    | awk '$1 == 5 {split($3, s, ","); print s[1]} $1 == 4 {print $2}' \
+    | tee /dev/tty \
+    | xc
+}
+
 # kubectl get all for api-resources
 function kgapi() {
   local IGNORE_DEFAULTS='^(cronjobs.batch|daemonsets.apps|deployments.apps|jobs.batch|pods|replicasets.apps|services|statefulsets.apps)$'
