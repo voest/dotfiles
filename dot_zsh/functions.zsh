@@ -23,31 +23,37 @@ function q.a() {
   q -f=json A AAAA "${1}" | jq -r '.[].replies[].answer[]? | .a, .aaaa | select(. != null)' | sort
 }
 
-# get answer from the authoritive dns server
-function q.auth() {
-  ns=$(q.ns $1)
-  echo "NS: ${ns}" >&2
-  q @"${ns}" "$1"
+# get the zone apex a host belongs to (SOA owner name, answer or authority section)
+function q.zone() {
+  local zone
+  zone=$(q SOA "${1}" --format=json \
+    | jq -r 'first(.[].replies[] | (.answer, .ns)[]? | select(.hdr.rrtype == 6) | .hdr.name)')
+  if [[ -z "${zone}" ]]; then
+    print -u2 "No zone found for ${1}"
+    return 1
+  fi
+  print -r -- "${zone}"
 }
 
-# get the authoritive dns server for a host
+# get the authoritive dns servers for a host
 function q.ns() {
-  domain=$1
-  dots=$(($(echo "${domain}" | grep -o "\." | wc -l)+1))
-  last_ns=
-  for i in {2..${dots}}; do
-    ns_domain=$(echo "${domain}" | rev | cut -d'.' -f-${i} | rev)
-    ns=$(q NS "${ns_domain}" --format=json | jq -r '.[].replies[].answer[0].ns | select(. != null)')
-    [[ -z "${ns}" ]] && break
-    last_ns=${ns}
-  done
-  if [[ ! -z "${last_ns}" ]]; then
-    echo "${last_ns}"
-    return
-  else
-    echo "No nameserver found" >&2
-    return
+  local zone
+  zone=$(q.zone "${1}") || return 1
+  q NS "${zone}" --format=json \
+    | jq -r '.[].replies[].answer[]? | select(.hdr.rrtype == 2) | .ns' \
+    | sort
+}
+
+# get answer from the authoritive dns server
+function q.auth() {
+  local ns
+  ns=$(q.ns "${1}" | head -1)
+  if [[ -z "${ns}" ]]; then
+    print -u2 "No nameserver found for ${1}"
+    return 1
   fi
+  print -u2 "NS: ${ns}"
+  q @"${ns}" "${@}"
 }
 
 # get the PTR records for A/AAAA records of a host
