@@ -10,9 +10,6 @@ alias PGW="command watch pgrep -a"
 alias S='command sort'
 alias T='command tail -f'
 
-# trial
-alias pwdxc='command pwd | xc --trim'
-
 # general
 alias bc='command bc -l -q'
 alias cat='bat -p'
@@ -81,11 +78,13 @@ alias psitop='command watch -n 1.5 -d command head /proc/pressure/*'
 alias psitops='command watch -t -n 1.5 -d "command head /proc/pressure/* | command sed \"s/total=.*$//g\""'
 alias psz='ps haxo pid:1,stat:1 | grep Z | cut -d" " -f1 | xargs -r ps o user:24,pid,pcpu,pmem,vsz,rss,tty,stat,lstart,time,command -p | L'
 alias pszz='ps haxo ppid:1,stat:1 | grep Z | cut -d" " -f1 | xargs -r ps o user:24,pid,pcpu,pmem,vsz,rss,tty,stat,lstart,time,command -p | L'
+alias pwdxc='command pwd | xc --trim'
 alias r='source "${HOME}/.zshrc.local"'
-alias rg='command rg --colors "match:bg:yellow" --colors "match:fg:black" --colors "match:style:nobold" --colors "path:fg:green" --colors "path:style:bold" --colors "line:fg:yellow" --colors "line:style:bold"'
+alias rg='command rg --smart-case --sort path --colors "match:bg:yellow" --colors "match:fg:black" --colors "match:style:nobold" --colors "path:fg:green" --colors "path:style:bold" --colors "line:fg:yellow" --colors "line:style:bold"'
 alias rgh='rg --hidden'
 alias rt='export TERM=${TERM}'
 alias sftpi='command sftp -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"'
+alias sofkans="sofka -n \$(kubectl config view --minify --output 'jsonpath={..namespace}')"
 alias ss.listen='command ss -tulpn | command column | command less'
 alias ss.listenv='command ss -tulpen | command column | command less'
 alias ssh='ssht'
